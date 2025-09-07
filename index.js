@@ -70,7 +70,22 @@ async function run() {
 
     // post related endpoints
     app.get("/posts", async (req, res) => {
-      const result = await postCol.find().toArray();
+      const query = { status: 1 };
+      const result = await postCol.find(query).toArray();
+      res.send(result);
+    });
+
+    app.get("/posts-limit/:limit", async (req, res) => {
+      const limit = parseInt(req.params.limit);
+      const query = { status: 1 };
+      const result = await postCol.find(query).limit(limit).toArray();
+      res.send(result);
+    });
+
+    app.get("/my-posts/:uid", async (req, res) => {
+      const uid = req.params.uid;
+      const query = { "created_by.uid": uid };
+      const result = await postCol.find(query).toArray();
       res.send(result);
     });
 
