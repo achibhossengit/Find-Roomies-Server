@@ -25,6 +25,7 @@ async function run() {
     await client.connect();
     const database = client.db("FindRomies");
     const usersCol = database.collection("users");
+    const postCol = database.collection("posts");
 
     app.get("/", (req, res) => {
       res.send("Hello Modarator, Wellcome to FindRommies Server.");
@@ -65,6 +66,46 @@ async function run() {
       const { newUser } = req.body;
       const result = await usersCol.insertOne(newUser);
       res.send(result);
+    });
+
+    // post related endpoints
+    app.get("/posts", async (req, res) => {
+      const result = await postCol.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/posts", async (req, res) => {
+      const { newPost } = req.body;
+      console.log(newPost);
+      const result = await postCol.insertOne(newPost);
+      res.send(result);
+    });
+
+    app.put("/posts/:id", async (req, res) => {
+      const id = req.params.id;
+      const { updatedPost } = req.body;
+
+      try {
+        const query = { _id: new ObjectId(id) };
+        const update = { $set: updatedPost };
+        const option = {};
+        const result = await postCol.updateOne(query, update, option);
+        res.send(result);
+      } catch (err) {
+        res.status(400).send({ message: "Something went wrong" });
+      }
+    });
+
+    app.delete("/posts/:id", async (req, res) => {
+      const id = req.params.id;
+
+      try {
+        const query = { _id: new ObjectId(id) };
+        const result = await postCol.deleteOne(query);
+        res.send(result);
+      } catch (err) {
+        res.status(400).send({ message: "Something went wrong" });
+      }
     });
 
     // Send a ping to confirm a successful connection
